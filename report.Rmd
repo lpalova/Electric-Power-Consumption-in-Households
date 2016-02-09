@@ -8,7 +8,7 @@ output: pdf_document
 ## 1. Alternative Energy: a Solar PV Example
 
 Any alternative energy generation faces difficulties connected with the storage of energy
-when there is a surplus in energy generation and release of energy (upond demand) when there is a deficit
+when there is a surplus in energy generation and release of energy (upon demand) when there is a deficit
 in energy generation. 
 One example of alternative energy is a solar photovoltaic (PV) system.
 It faces challenges including rapid output variations (cloudy vs. sunny), 
@@ -244,12 +244,12 @@ p3 <- ggplot(data=aveweekqmelt,
 ```
 
 We observe that the average energy consumption in this household is
-`r round(mean(recorded_df$active_power)*1000/60.0)` Wh per minute,
+`r round(mean(recorded_df$active_power)*1000/60.0, 1)` Wh per minute,
 with a variability due to seasons:
-`r round(mean(recorded_df[recorded_df$quarter==1,]$active_power)*1000/60.0)` Wh per minute during January-March (1st quarter),
-`r round(mean(recorded_df[recorded_df$quarter==2,]$active_power)*1000/60.0)` Wh per minute during April-June (2nd quarter),
-`r round(mean(recorded_df[recorded_df$quarter==3,]$active_power)*1000/60.0)` Wh per minute during July-September (3rd quarter),
-`r round(mean(recorded_df[recorded_df$quarter==4,]$active_power)*1000/60.0)` Wh per minute during October-December (4th quarter).
+`r round(mean(recorded_df[recorded_df$quarter==1,]$active_power)*1000/60.0, 1)` Wh per minute during January-March (1st quarter),
+`r round(mean(recorded_df[recorded_df$quarter==2,]$active_power)*1000/60.0, 1)` Wh per minute during April-June (2nd quarter),
+`r round(mean(recorded_df[recorded_df$quarter==3,]$active_power)*1000/60.0, 1)` Wh per minute during July-September (3rd quarter),
+`r round(mean(recorded_df[recorded_df$quarter==4,]$active_power)*1000/60.0, 1)` Wh per minute during October-December (4th quarter).
 **Figure 2** shows the global active energy (black curve), its components and small global reactive energy (grey curve) 
 for all four quarters, 
 from Thursday morning until Sunday evening, on average.
@@ -261,13 +261,13 @@ electric energy consumption more than on average.
 **Figure 1, top panel** shows submetering of global active energy for an average week.
 We see an increase in the global active energy (black curve) during the weekend, as opposed to a workday. 
 On average, the active energy consumption is 
-`r round(mean(recorded_df[weekdays(recorded_df$datetime)=="Saturday" | weekdays(recorded_df$datetime)=="Sunday",]$active_power)*1000/60.0)` Wh per minute during weekends and 
-`r round(mean(recorded_df[weekdays(recorded_df$datetime)!="Saturday" & weekdays(recorded_df$datetime)!="Sunday",]$active_power)*1000/60.0)` Wh per minute during weekdays.
+`r round(mean(recorded_df[weekdays(recorded_df$datetime)=="Saturday" | weekdays(recorded_df$datetime)=="Sunday",]$active_power)*1000/60.0, 1)` Wh per minute during weekends and 
+`r round(mean(recorded_df[weekdays(recorded_df$datetime)!="Saturday" & weekdays(recorded_df$datetime)!="Sunday",]$active_power)*1000/60.0, 1)` Wh per minute during weekdays.
 In addition, we observe two in demand peaks, one morning peak between 6-9 am, 
 and one afternoon peak between 6-9pm, with the weekend data showing more energy demand during afternoon/evening hours.
 The water-heat and AC submetering profile (magenta) follows the global active energy profile closely, 
 suggesting that a large portion of the energy consumption variance can be explained by water-heat/AC appliances.
-Kitchen (greeen) and laundry room (red) appliances, 
+Kitchen (green) and laundry room (red) appliances, 
 including dishwasher, oven, microwave, washing-machine, tumble-drier, refrigerator and light,
 represent about `r round(mean((recorded_df$sub1+recorded_df$sub2)/(recorded_df$active_power*1000/60.0))*100.0)`%
 of the global active energy,
@@ -281,6 +281,16 @@ and during the weekend.
 
 We are also interested in looking at the reactive energy. As seen in figure 2, the amount of reactive energy is small
 compared to the active energy.
+The average reactive energy is 
+`r round(mean(recorded_df$reactive_power*1000/60.0), 1)` Wh per minute,
+with a variability due to seasons:
+`r round(mean(recorded_df[recorded_df$quarter==1,]$reactive_power)*1000/60.0, 1)` Wh per minute during January-March (1st quarter),
+`r round(mean(recorded_df[recorded_df$quarter==2,]$reactive_power)*1000/60.0, 1)` Wh per minute during April-June (2nd quarter),
+`r round(mean(recorded_df[recorded_df$quarter==3,]$reactive_power)*1000/60.0, 1)` Wh per minute during July-September (3rd quarter),
+`r round(mean(recorded_df[recorded_df$quarter==4,]$reactive_power)*1000/60.0, 1)` Wh per minute during October-December (4th quarter).
+On average, the reactive energy is 
+`r round(mean(recorded_df[weekdays(recorded_df$datetime)=="Saturday" | weekdays(recorded_df$datetime)=="Sunday",]$reactive_power)*1000/60.0, 1)` Wh per minute during weekends and 
+`r round(mean(recorded_df[weekdays(recorded_df$datetime)!="Saturday" & weekdays(recorded_df$datetime)!="Sunday",]$reactive_power)*1000/60.0, 1)` Wh per minute during weekdays.
 The average shift factor, ratio of the active energy to the magnitude of the sum of the active and reactive energies is
 `r round(mean(recorded_df$shift_factor),2)`.
 Its variability due to seasons is the following:
@@ -297,10 +307,15 @@ with kitchen active energy, possibly also with laundry room energy (further infe
 
 In summary, this household data shows 18 Wh per minute average active electric energy consumption,
 with a seasonal minumum and maximum of 12 and 22 Wh per minute, respectively.
-The variation in the active energy is 21 Wh per minute and 17 Wh per minute during weekends and weekdays, respectively.
-The global reactive energy is small, leading to average shift factor of 0.96.
+The variation in the active energy is 21 Wh per minute and 17 Wh per minute on average during weekends and weekdays, respectively.
+The global reactive energy is small, `r round(mean(recorded_df$reactive_power*1000/60.0), 1)` Wh per minute on average,
+leading to average shift factor of 0.96.
+Notice that distributions (viz. histogram or boxplot) of active power, reactive power and shift factor are skewed.
+The variation is also large for all three measured quantities. 
+Further analysis is needed to address the short- and long-term variability.
 
-
+Please see figures and pdf at:
+https://github.com/lpalova/Electric-Power-Consumption-in-Households
 
 
 
