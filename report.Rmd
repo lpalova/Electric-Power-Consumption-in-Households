@@ -1,7 +1,7 @@
 ---
 title: 'Electric Power Consumption in Households'
 author: "L.P."
-date: "02/01/2016"
+date: "02/17/2016"
 output: pdf_document
 ---
 
@@ -65,12 +65,15 @@ As a starting point, we study energy demands in a single household
 (*https://archive.ics.uci.edu/ml/datasets/Individual+household+electric+power+consumption*).
 We look at measurements of electric power consumption with a one-minute sampling rate over a period of almost 4 years,
 spanning from 2006-12-16 to 2010-11-26.
-```{r, echo=FALSE, message=FALSE, cache=TRUE}
+```{r, echo=FALSE, message=FALSE}
 library(dplyr)
 library(lubridate)
 library(ggplot2)
 library(reshape2)
 library(scales)
+library(tidyr)
+```
+```{r, echo=FALSE, cache=TRUE}
 # Multiple plot function:
 # http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
 multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
@@ -168,6 +171,8 @@ aveweek <- week %>%
         )
 names(aveweek) <- c("time2000", "Active Energy", "Kitchen", "Laundry Room", "Water-Heat, AC", "Rest")
 aveweekmelt <- melt(aveweek, id="time2000")
+```
+```{r,echo=FALSE}
 p1 <- ggplot(data=aveweekmelt, 
              aes(x=time2000, y=value, colour=variable)) +
         geom_line() +
@@ -175,16 +180,17 @@ p1 <- ggplot(data=aveweekmelt,
         scale_x_datetime( breaks = datebreaks,
                           labels=date_format("%H:%M"), 
                           limits=c( min(aveweek$time2000), max(aveweek$time2000) ) ) +
-        labs( x = "Time [h]: 00:00 Monday through 24:00 Sunday", y = "Active Energy [Wh]", 
-              title = "Submetering of Global Active Energy for an Average Week" ) +
-        theme( plot.title = element_text(size = rel(1.8), face = "bold"),
-                axis.text.x = element_text(size = rel(1.4)),
-                axis.title.x = element_text(size = rel(1.6)), 
-                axis.text.y = element_text(size = rel(1.3), angle = 90),
-                axis.title.y = element_text(size = rel(1.6), angle = 90),
-                legend.text = element_text(size = rel(1.0), angle = 45)
+        labs( x = "Time [h]: 00:00 Monday through 24:00 Sunday", y = "Active Energy [Wh]") +
+        ggtitle(expression(atop("Figure 2", bold("Submetering of Global Active Energy")))) +
+        theme( plot.title = element_text(size = rel(1.2), face = "bold"),
+                axis.text.x = element_text(size = rel(0.8)),
+                axis.title.x = element_text(size = rel(1.1)), 
+                axis.text.y = element_text(size = rel(0.9), angle = 90),
+                axis.title.y = element_text(size = rel(0.9), angle = 90),
+                legend.text = element_text(size = rel(0.6), angle = 45)
         )
-
+```
+```{r, echo=FALSE, cache=TRUE}
 ## Reactive energy for an average week, compared to kitchen submetering
 aveweekr <- week %>% 
         group_by( time2000 ) %>%
@@ -193,7 +199,9 @@ aveweekr <- week %>%
         )
 names(aveweekr) <- c("time2000","Kitchen", "Reactive Energy")
 aveweekrmelt <- melt(aveweekr, id="time2000")
-p7 <- ggplot(data=aveweekrmelt, 
+```
+```{r, echo=FALSE}
+p2 <- ggplot(data=aveweekrmelt, 
              aes(x=time2000, y=value, colour = variable)) +
         geom_line() +
         scale_colour_manual( name="", values = c("lightblue", "black") ) +
@@ -201,14 +209,16 @@ p7 <- ggplot(data=aveweekrmelt,
                           labels=date_format("%H:%M"), 
                           limits=c( min(aveweekr$time2000), max(aveweekr$time2000) ) ) +
         labs( x = "Time [h]: 00:00 Monday through 24:00 Sunday", y = "Global Reactive Energy [Wh]", 
-              title = "Global Reactive Energy for an Average Week" ) +
-        theme( plot.title = element_text(size = rel(2), face = "bold"),
-                axis.text.x = element_text(size = rel(1.4)),
-                axis.title.x = element_text(size = rel(1.6)), 
-                axis.text.y = element_text(size = rel(1.3), angle = 90),
-                axis.title.y = element_text(size = rel(1.6), angle = 90),
-                legend.text = element_text(size = rel(1.1), angle = 45)
+              title = "Global Reactive Energy" ) +
+        theme( plot.title = element_text(size = rel(1.2), face = "bold"),
+                axis.text.x = element_text(size = rel(0.8)),
+                axis.title.x = element_text(size = rel(1.1)), 
+                axis.text.y = element_text(size = rel(0.9), angle = 90),
+                axis.title.y = element_text(size = rel(0.9), angle = 90),
+                legend.text = element_text(size = rel(0.6), angle = 45)
         )
+```
+```{r, echo=FALSE, cache=TRUE}
 ## Active and reactive energy by quarters
 endweek <- rbind( Thursdays, Fridays, Saturdays, Sundays )
 # tick-marks for date axis: from 00:00 Thursday to 24:00 Sunday (UTC vs EST shift)
@@ -224,6 +234,8 @@ aveweekq <- endweek %>%
         )
 names(aveweekq) <- c("time2000", "quarter", "Active Energy", "Reactive Energy", "Kitchen", "Laundry Room", "Water-Heat, AC", "Rest")
 aveweekqmelt <- melt(aveweekq, id=c("time2000","quarter")) 
+```
+```{r, echo=FALSE}
 p3 <- ggplot(data=aveweekqmelt, 
              aes(x=time2000, y=value, colour=variable)) +
         geom_line() +
@@ -232,14 +244,14 @@ p3 <- ggplot(data=aveweekqmelt,
         scale_x_datetime( breaks = datebreaks2, 
                           labels=date_format("%H:%M"),
                           limits=c( min(aveweekq$time2000), max(aveweekq$time2000) ) ) +
-        labs( x = "Time [h]: 00:00 Thursday through 24:00 Sunday", y = "Global Active/Reactive Energy [Wh]", 
-              title = "Global Energy by Quarters" ) +
-        theme( plot.title = element_text(size = rel(2), face = "bold"),
-                axis.text.x = element_text(size = rel(1.4)),
-                axis.title.x = element_text(size = rel(1.6)), 
-                axis.text.y = element_text(size = rel(1.3), angle = 90),
-                axis.title.y = element_text(size = rel(1.6), angle = 90),
-                legend.text = element_text(size = rel(1.1), angle = 45)
+        labs( x = "Time [h]: 00:00 Thursday through 24:00 Sunday", y = "Global Active/Reactive Energy [Wh]") +
+        ggtitle(expression(atop("Figure 1", bold("Global Energy by Quarters")))) +
+        theme( plot.title = element_text(size = rel(1.2), face = "bold"),
+                axis.text.x = element_text(size = rel(0.9)),
+                axis.title.x = element_text(size = rel(1.1)), 
+                axis.text.y = element_text(size = rel(1.0), angle = 90),
+                axis.title.y = element_text(size = rel(1.1), angle = 90),
+                legend.text = element_text(size = rel(0.7), angle = 45)
         )
 ```
 
@@ -250,15 +262,18 @@ with a variability due to seasons:
 `r round(mean(recorded_df[recorded_df$quarter==2,]$active_power)*1000/60.0, 1)` Wh per minute during April-June (2nd quarter),
 `r round(mean(recorded_df[recorded_df$quarter==3,]$active_power)*1000/60.0, 1)` Wh per minute during July-September (3rd quarter),
 `r round(mean(recorded_df[recorded_df$quarter==4,]$active_power)*1000/60.0, 1)` Wh per minute during October-December (4th quarter).
-**Figure 2** shows the global active energy (black curve), its components and small global reactive energy (grey curve) 
+**Figure 1** shows the global active energy (black curve), its components and small global reactive energy (grey curve) 
 for all four quarters, 
 from Thursday morning until Sunday evening, on average.
 Notice that quarters here do not match the four seasons, however, we can see the seasonal variability in energy demand:
 3rd quarter (mostly summer) demands only two thirds of average electric consumption, whereas 
 1st and 4th quarters (mostly winter and late/early Fall/Spring, resp.) demand about one fourth of 
 electric energy consumption more than on average.
+```{r, echo=FALSE}
+p3
+```
 
-**Figure 1, top panel** shows submetering of global active energy for an average week.
+**Figure 2, top panel** shows submetering of global active energy for an average week.
 We see an increase in the global active energy (black curve) during the weekend, as opposed to a workday. 
 On average, the active energy consumption is 
 `r round(mean(recorded_df[weekdays(recorded_df$datetime)=="Saturday" | weekdays(recorded_df$datetime)=="Sunday",]$active_power)*1000/60.0, 1)` Wh per minute during weekends and 
@@ -278,9 +293,12 @@ comes from the so called "rest" energy. Unfortunatelly, this dataset does not sp
 high energy demand (we could speculate that significant portion comes from an electrical heating system, or similar).
 Also notice that this household did most of their laundry in the middle of the week (mostly Wednesdays, some Tuesdays)
 and during the weekend.
+```{r, echo=FALSE}
+multiplot(p1, p2, cols=1)
+```
 
-We are also interested in looking at the reactive energy. As seen in figure 2, the amount of reactive energy is small
-compared to the active energy.
+We are also interested in looking at the reactive energy. As seen in **Figure 1**,
+the amount of reactive energy is small compared to the active energy.
 The average reactive energy is 
 `r round(mean(recorded_df$reactive_power*1000/60.0), 1)` Wh per minute,
 with a variability due to seasons:
@@ -291,31 +309,66 @@ with a variability due to seasons:
 On average, the reactive energy is 
 `r round(mean(recorded_df[weekdays(recorded_df$datetime)=="Saturday" | weekdays(recorded_df$datetime)=="Sunday",]$reactive_power)*1000/60.0, 1)` Wh per minute during weekends and 
 `r round(mean(recorded_df[weekdays(recorded_df$datetime)!="Saturday" & weekdays(recorded_df$datetime)!="Sunday",]$reactive_power)*1000/60.0, 1)` Wh per minute during weekdays.
-The average shift factor, ratio of the active energy to the magnitude of the sum of the active and reactive energies is
+The average shift factor, ratio of the active energy to the magnitude of the sum of the active and reactive energies, is
 `r round(mean(recorded_df$shift_factor),2)`.
-Its variability due to seasons is the following:
+Its variability due to seasons is:
 `r round(mean(recorded_df[recorded_df$quarter==1,]$shift_factor),2)` during January-March (1st quarter),
 `r round(mean(recorded_df[recorded_df$quarter==2,]$shift_factor),2)` during April-June (2nd quarter),
 `r round(mean(recorded_df[recorded_df$quarter==3,]$shift_factor),2)` during July-September (3rd quarter) and
 `r round(mean(recorded_df[recorded_df$quarter==4,]$shift_factor),2)` during October-December (4th quarter).
-**Figure 1, bottom panel** shows the averaged global reactive energy (black) as a function of time for an average week.
+On average, the shift factor is
+`r round(mean(recorded_df[weekdays(recorded_df$datetime)=="Saturday" | weekdays(recorded_df$datetime)=="Sunday",]$shift_factor),2)` during weekends and 
+`r round(mean(recorded_df[weekdays(recorded_df$datetime)!="Saturday" & weekdays(recorded_df$datetime)!="Sunday",]$shift_factor),2)` during weekdays.
+**Figure 2, bottom panel** shows the averaged global reactive energy (black) as a function of time for an average week.
 We see that the reactive energy increases during weekends,
 and has "afternoon peaks" around 7pm during weekdays.
 We also plot the kitchen active energy (light blue) underneath, and compare the reactive and kitchen active energies.
 We observe somewhat a similar shape; the afternoon reactive energy peaks could be explained by a correlation
 with kitchen active energy, possibly also with laundry room energy (further inference investigation is needed).
 
-In summary, this household data shows 18 Wh per minute average active electric energy consumption,
-with a seasonal minumum and maximum of 12 and 22 Wh per minute, respectively.
-The variation in the active energy is 21 Wh per minute and 17 Wh per minute on average during weekends and weekdays, respectively.
-The global reactive energy is small, `r round(mean(recorded_df$reactive_power*1000/60.0), 1)` Wh per minute on average,
-leading to average shift factor of 0.96.
-Notice that distributions (viz. histogram or boxplot) of active power, reactive power and shift factor are skewed.
-The variation is also large for all three measured quantities. 
-Further analysis is needed to address the short- and long-term variability.
+Notice that distributions of active, reactive power and shift factor are skewed, see boxplots and 
+histograms in **Figures 3** and **4**. Further analysis is needed to address the short- and long-term variability.   
+```{r, echo=FALSE, message=FALSE}
+scaled_power = data.frame(
+        scaled_active = (recorded_df$active_power - min(recorded_df$active_power))/(max(recorded_df$active_power)-min(recorded_df$active_power)),
+        scaled_reactive = (recorded_df$reactive_power - min(recorded_df$reactive_power))/(max(recorded_df$reactive_power)-min(recorded_df$reactive_power)),
+        scaled_shift_factor = (recorded_df$shift_factor - min(recorded_df$shift_factor))/(max(recorded_df$shift_factor)-min(recorded_df$shift_factor))
+                )
+powervars <- gather(scaled_power, variable, value) 
+p4 <- ggplot(data=powervars,
+             aes(factor(variable), value, colour=variable)) +
+        geom_boxplot() +
+        labs( x = "", y = "Value") +
+        ggtitle(expression(atop("Figure 3: Boxplot", bold("Scaled Global Active/Reactive Energy and Shift Factor")))) +
+        theme( plot.title = element_text(size = rel(1.2), face = "bold"),
+                axis.text.x = element_text(size = rel(0.9)),
+                axis.title.x = element_text(size = rel(1.1)), 
+                axis.text.y = element_text(size = rel(1.0), angle = 90),
+                axis.title.y = element_text(size = rel(1.1), angle = 90),
+                legend.text = element_text(size = rel(0.7), angle = 0))
+p4
+p5 <- ggplot(data=powervars,
+             aes(x= value)) +
+        geom_histogram() +
+        facet_grid(.~variable) + 
+        labs( x = "Value", y = "Count") +
+        ggtitle(expression(atop("Figure 4: Histogram", bold("Scaled Global Active/Reactive Energy and Shift Factor")))) +
+        theme( plot.title = element_text(size = rel(1.2), face = "bold"),
+                axis.text.x = element_text(size = rel(0.9)),
+                axis.title.x = element_text(size = rel(1.1)), 
+                axis.text.y = element_text(size = rel(1.0), angle = 90),
+                axis.title.y = element_text(size = rel(1.1), angle = 90))
+p5
+```
 
-Please see figures and pdf at:
-https://github.com/lpalova/Electric-Power-Consumption-in-Households
+In summary, this household data shows `r round(mean(recorded_df$active_power)*1000/60.0)` Wh per minute average active electric energy consumption,
+with a seasonal minumum and maximum of `r round(mean(recorded_df[recorded_df$quarter==3,]$active_power)*1000/60.0)` and
+`r round(mean(recorded_df[recorded_df$quarter==1,]$active_power)*1000/60.0)` Wh per minute, respectively.
+The active energy is 
+`r round(mean(recorded_df[weekdays(recorded_df$datetime)=="Saturday" | weekdays(recorded_df$datetime)=="Sunday",]$active_power)*1000/60.0)` Wh per minute during weekends and 
+`r round(mean(recorded_df[weekdays(recorded_df$datetime)!="Saturday" & weekdays(recorded_df$datetime)!="Sunday",]$active_power)*1000/60.0)` Wh per minute during weekdays.
+The global reactive energy is small, `r round(mean(recorded_df$reactive_power*1000/60.0))` Wh per minute on average,
+leading to average shift factor of `r round(mean(recorded_df$shift_factor),2)`.
 
 
 
